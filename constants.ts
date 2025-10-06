@@ -13,6 +13,19 @@ export const STANDARD_AMENITIES: Amenity[] = [
   { name: 'Smart Board', icon: 'Presentation' },
 ];
 
+// FIX: Add exported constant TIME_SLOTS to resolve import error.
+export const TIME_SLOTS: string[] = [
+  '09:00',
+  '10:00',
+  '11:00',
+  '12:00',
+  '13:00',
+  '14:00',
+  '15:00',
+  '16:00',
+  '17:00',
+];
+
 export const SAMPLE_ROOMS: Room[] = [
   {
     id: 'room-1',
@@ -67,6 +80,11 @@ export const SAMPLE_ROOMS: Room[] = [
 const today = new Date();
 const tomorrow = new Date(today);
 tomorrow.setDate(tomorrow.getDate() + 1);
+const threeDaysFromNow = new Date(today);
+threeDaysFromNow.setDate(today.getDate() + 3);
+const fiveDaysFromNow = new Date(today);
+fiveDaysFromNow.setDate(today.getDate() + 5);
+
 
 const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
@@ -75,9 +93,8 @@ export const SAMPLE_BOOKINGS: Booking[] = [
     id: 'booking-1',
     roomId: 'room-1',
     userId: 'admin1',
-    date: formatDate(today),
-    startTime: '10:00',
-    endTime: '11:00',
+    checkInDate: formatDate(today),
+    checkOutDate: formatDate(tomorrow),
     userName: 'Admin User',
     userEmail: 'admin@example.com',
     status: 'Confirmed',
@@ -86,15 +103,10 @@ export const SAMPLE_BOOKINGS: Booking[] = [
     id: 'booking-2',
     roomId: 'room-3',
     userId: 'user123',
-    date: formatDate(tomorrow),
-    startTime: '14:00',
-    endTime: '16:00',
+    checkInDate: formatDate(threeDaysFromNow),
+    checkOutDate: formatDate(fiveDaysFromNow),
     userName: 'Jane Doe',
     userEmail: 'jane.doe@example.com',
     status: 'Confirmed',
   },
-];
-
-export const TIME_SLOTS = [
-    '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'
 ];

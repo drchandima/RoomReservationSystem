@@ -1,24 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Booking, Room } from '../../types';
 import Icon from '../Icon';
+import EditBookingModal from '../EditBookingModal';
 
 interface MyReservationsViewProps {
-  bookings: Booking[];
+  userBookings: Booking[];
+  allBookings: Booking[];
   rooms: Room[];
   cancelBooking: (bookingId: string) => void;
+  updateBooking: (booking: Booking) => void;
 }
 
-const MyReservationsView: React.FC<MyReservationsViewProps> = ({ bookings, rooms, cancelBooking }) => {
+const MyReservationsView: React.FC<MyReservationsViewProps> = ({ userBookings, allBookings, rooms, cancelBooking, updateBooking }) => {
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+
+  const getRoom = (roomId: string) => {
+    return rooms.find(r => r.id === roomId);
+  };
+  
   const getRoomName = (roomId: string) => {
-    return rooms.find(r => r.id === roomId)?.name || 'Unknown Room';
+    return getRoom(roomId)?.name || 'Unknown Room';
+  };
+
+  const handleSaveBooking = (updatedBooking: Booking) => {
+    updateBooking(updatedBooking);
+    setEditingBooking(null);
+  }
+
+  const formatDate = (dateString: string) => {
+    // Adding T00:00:00 ensures the date is parsed in the local timezone
+    return new Date(dateString + 'T00:00:00').toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   };
 
   return (
     <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">My Reservations</h1>
-        <p className="text-lg text-gray-600 mb-8">Here are your upcoming bookings. You can cancel them if your plans change.</p>
+        <p className="text-lg text-gray-600 mb-8">Here are your upcoming bookings. You can edit or delete them if your plans change.</p>
         
-        {bookings.length === 0 ? (
+        {userBookings.length === 0 ? (
             <div className="text-center bg-white p-12 rounded-lg shadow-md">
                 <Icon name="Calendar" className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-xl font-medium text-gray-900">No Reservations Found</h3>
@@ -26,30 +49,47 @@ const MyReservationsView: React.FC<MyReservationsViewProps> = ({ bookings, rooms
             </div>
         ) : (
             <div className="space-y-4">
-            {bookings.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map(booking => (
+            {userBookings.sort((a,b) => new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime()).map(booking => (
                 <div key={booking.id} className="bg-white p-6 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
+                <div className="flex-grow">
                     <h3 className="text-xl font-bold text-blue-700">{getRoomName(booking.roomId)}</h3>
                     <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:space-x-6 text-gray-600">
                         <div className="flex items-center">
                             <Icon name="Calendar" className="w-5 h-5 mr-2" />
-                            <span>{new Date(booking.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                        </div>
-                        <div className="flex items-center mt-2 sm:mt-0">
-                            <Icon name="Clock" className="w-5 h-5 mr-2" />
-                            <span>{booking.startTime} - {booking.endTime}</span>
+                            <span>{formatDate(booking.checkInDate)} - {formatDate(booking.checkOutDate)}</span>
                         </div>
                     </div>
+                     <div className="mt-2 text-sm text-gray-500 bg-gray-100 p-2 rounded-md inline-block">
+                        Check-in: 2:00 PM | Check-out: 12:00 PM
+                    </div>
                 </div>
-                <button
-                    onClick={() => window.confirm('Are you sure you want to cancel this reservation?') && cancelBooking(booking.id)}
-                    className="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-200 w-full sm:w-auto"
-                >
-                    Cancel
-                </button>
+                <div className="flex items-center space-x-2 flex-shrink-0 w-full sm:w-auto">
+                    <button
+                        onClick={() => setEditingBooking(booking)}
+                        className="flex-1 sm:flex-initial bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                    >
+                        Edit
+                    </button>
+                    <button
+                        onClick={() => window.confirm('Are you sure you want to delete this reservation?') && cancelBooking(booking.id)}
+                        className="flex-1 sm:flex-initial bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-200"
+                    >
+                        Delete
+                    </button>
+                </div>
                 </div>
             ))}
             </div>
+        )}
+        {editingBooking && (
+            <EditBookingModal
+                isOpen={!!editingBooking}
+                onClose={() => setEditingBooking(null)}
+                booking={editingBooking}
+                room={getRoom(editingBooking.roomId)!}
+                allBookings={allBookings}
+                onSave={handleSaveBooking}
+            />
         )}
     </div>
   );

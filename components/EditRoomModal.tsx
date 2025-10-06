@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Room, Amenity } from '../types';
 import Modal from './Modal';
-import { STANDARD_AMENITIES } from '../../constants';
+import { STANDARD_AMENITIES } from '../constants';
 
 interface EditRoomModalProps {
   isOpen: boolean;
@@ -80,7 +80,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ isOpen, onClose, room, on
               <input type="number" id="edit-capacity" value={capacity} onChange={e => setCapacity(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
             </div>
             <div>
-              <label htmlFor="edit-price" className="block text-sm font-medium text-gray-700">Price (US$/day)</label>
+              <label htmlFor="edit-price" className="block text-sm font-medium text-gray-700">Price (US$/night)</label>
               <input type="number" id="edit-price" value={price} onChange={e => setPrice(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
             </div>
         </div>

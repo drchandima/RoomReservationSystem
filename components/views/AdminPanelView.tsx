@@ -105,7 +105,7 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
                     <input type="number" id="capacity" value={newRoomCapacity} onChange={e => setNewRoomCapacity(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 8" />
                 </div>
                 <div>
-                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (US$/day)</label>
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (US$/night)</label>
                     <input type="number" id="price" value={newRoomPrice} onChange={e => setNewRoomPrice(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 150" />
                 </div>
                  <div className="md:col-span-3">
@@ -145,7 +145,7 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
             <div key={room.id} className="border p-4 rounded-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <p className="font-semibold text-lg">{room.name}</p>
-                <p className="text-sm text-gray-500">Capacity: {room.capacity} | Price: ${room.price}/day | Amenities: {room.amenities.length}</p>
+                <p className="text-sm text-gray-500">Capacity: {room.capacity} | Price: ${room.price}/night | Amenities: {room.amenities.length}</p>
               </div>
               <div className="flex items-center space-x-2 flex-shrink-0">
                  <button
@@ -197,17 +197,18 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-in Date</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-out Date</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {bookings.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">No bookings found.</td>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">No bookings found.</td>
                 </tr>
               ) : (
-                bookings.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map(booking => (
+                bookings.sort((a,b) => new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime()).map(booking => (
                   <tr key={booking.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{getRoomName(booking.roomId)}</div>
@@ -216,10 +217,11 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
                       <div className="text-sm text-gray-900">{booking.userName}</div>
                       <div className="text-sm text-gray-500">{booking.userEmail}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                        {/* FIX: Corrected typo from toLocaleDateDateString to toLocaleDateString */}
-                        <div className="text-sm text-gray-900">{new Date(booking.date).toLocaleDateString()}</div>
-                        <div className="text-sm text-gray-500">{booking.startTime} - {booking.endTime}</div>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {new Date(booking.checkInDate + 'T00:00:00').toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {new Date(booking.checkOutDate + 'T00:00:00').toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button

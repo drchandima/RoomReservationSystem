@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Booking } from '../types';
 import { TIME_SLOTS } from '../constants';
 import Icon from './Icon';
@@ -11,29 +11,39 @@ interface TimeSlotPickerProps {
   setSelectedSlot: (slot: string) => void;
 }
 
-const timeToMinutes = (time: string): number => {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
+// FIX: This component was using properties on the Booking type that did not exist (e.g., date, startTime, endTime).
+// The logic has been updated to be compatible with the existing multi-day booking model.
+// Now, if a room is booked for any part of a day, all time slots for that day are considered booked.
+
+const parseDate = (dateString: string): Date => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
 };
 
-
 const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({ roomId, date, bookings, selectedSlot, setSelectedSlot }) => {
-  const relevantBookings = bookings.filter(b => b.roomId === roomId && b.date === date);
+  const isDateBooked = useMemo(() => {
+    const targetDate = parseDate(date);
+    // Set time to 0 to compare dates only
+    targetDate.setHours(0, 0, 0, 0);
+
+    return bookings.some(booking => {
+        if (booking.roomId !== roomId) {
+            return false;
+        }
+        
+        const checkIn = parseDate(booking.checkInDate);
+        const checkOut = parseDate(booking.checkOutDate);
+        
+        // The range is [checkIn, checkOut). Check if targetDate is within this range.
+        return targetDate >= checkIn && targetDate < checkOut;
+    });
+  }, [date, bookings, roomId]);
 
   return (
     <div className="bg-white p-4 rounded-lg border">
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
         {TIME_SLOTS.map(slot => {
-          const slotStartMinutes = timeToMinutes(slot);
-          const slotEndMinutes = slotStartMinutes + 60; // Assuming 1-hour slots
-
-          const isBooked = relevantBookings.some(booking => {
-            const bookingStartMinutes = timeToMinutes(booking.startTime);
-            const bookingEndMinutes = timeToMinutes(booking.endTime);
-            // Check for overlap: (StartA < EndB) and (EndA > StartB)
-            return slotStartMinutes < bookingEndMinutes && slotEndMinutes > bookingStartMinutes;
-          });
-
+          const isBooked = isDateBooked;
           const isSelected = selectedSlot === `${slot} - ${parseInt(slot.split(':')[0]) + 1}:00`;
 
           const baseClasses = "w-full text-center p-3 rounded-lg border transition-all duration-200 flex items-center justify-center font-medium";

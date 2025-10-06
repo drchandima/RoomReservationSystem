@@ -26,7 +26,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, bookings, addBooking }) => {
             </div>
             <div className="flex items-center">
               <Icon name="DollarSign" className="w-5 h-5 mr-2 text-green-600" />
-              <span className="font-semibold">${room.price}/day</span>
+              <span className="font-semibold">${room.price}/night</span>
             </div>
           </div>
 

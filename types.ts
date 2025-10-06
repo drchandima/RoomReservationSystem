@@ -2,7 +2,7 @@ export interface Room {
   id: string;
   name: string;
   capacity: number;
-  price: number;
+  price: number; // Price per night
   amenities: Amenity[];
   imageUrl: string;
 }
@@ -18,9 +18,8 @@ export interface Booking {
   id: string;
   roomId: string;
   userId: string;
-  date: string; // YYYY-MM-DD
-  startTime: string; // HH:mm
-  endTime: string; // HH:mm
+  checkInDate: string; // YYYY-MM-DD
+  checkOutDate: string; // YYYY-MM-DD
   userName: string;
   userEmail: string;
   status: 'Confirmed' | 'Cancelled';

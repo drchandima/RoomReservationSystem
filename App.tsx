@@ -26,6 +26,10 @@ const App: React.FC = () => {
     setBookings(prev => [...prev, newBooking]);
   };
 
+  const updateBooking = (updatedBooking: Booking) => {
+    setBookings(prev => prev.map(booking => booking.id === updatedBooking.id ? updatedBooking : booking));
+  };
+
   const cancelBooking = (bookingId: string) => {
     setBookings(prev => prev.filter(b => b.id !== bookingId));
   };
@@ -81,7 +85,13 @@ const App: React.FC = () => {
         return <RoomListView rooms={rooms} bookings={bookings} addBooking={addBooking} />;
       case 'MyReservations':
         const userBookings = bookings.filter(b => b.userId === currentUser.id);
-        return <MyReservationsView bookings={userBookings} rooms={rooms} cancelBooking={cancelBooking} />;
+        return <MyReservationsView
+            userBookings={userBookings}
+            allBookings={bookings}
+            rooms={rooms}
+            cancelBooking={cancelBooking}
+            updateBooking={updateBooking}
+        />;
       default:
         return <RoomListView rooms={rooms} bookings={bookings} addBooking={addBooking} />;
     }
