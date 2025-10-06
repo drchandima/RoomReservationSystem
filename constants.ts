@@ -18,6 +18,7 @@ export const SAMPLE_ROOMS: Room[] = [
     id: 'room-1',
     name: 'The Focus Den',
     capacity: 4,
+    price: 100,
     amenities: [
       { name: 'Wi-Fi', icon: 'Wifi' },
       { name: 'Whiteboard', icon: 'Presentation' },
@@ -28,6 +29,7 @@ export const SAMPLE_ROOMS: Room[] = [
     id: 'room-2',
     name: 'Collaborate Corner',
     capacity: 8,
+    price: 150,
     amenities: [
       { name: 'Wi-Fi', icon: 'Wifi' },
       { name: 'TV Screen', icon: 'Tv' },
@@ -39,6 +41,7 @@ export const SAMPLE_ROOMS: Room[] = [
     id: 'room-3',
     name: 'The Boardroom',
     capacity: 16,
+    price: 250,
     amenities: [
       { name: 'Wi-Fi', icon: 'Wifi' },
       { name: 'Catering Available', icon: 'Coffee' },
@@ -50,6 +53,7 @@ export const SAMPLE_ROOMS: Room[] = [
     id: 'room-4',
     name: 'Innovation Hub',
     capacity: 12,
+    price: 225,
     amenities: [
         { name: 'Wi-Fi', icon: 'Wifi' },
         { name: 'Smart Board', icon: 'Presentation' },

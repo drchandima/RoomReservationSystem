@@ -13,6 +13,7 @@ interface EditRoomModalProps {
 const EditRoomModal: React.FC<EditRoomModalProps> = ({ isOpen, onClose, room, onSave }) => {
   const [name, setName] = useState(room.name);
   const [capacity, setCapacity] = useState(room.capacity.toString());
+  const [price, setPrice] = useState(room.price.toString());
   const [selectedAmenities, setSelectedAmenities] = useState<Set<string>>(new Set());
   const [imageUrl, setImageUrl] = useState(room.imageUrl);
   const [error, setError] = useState('');
@@ -21,6 +22,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ isOpen, onClose, room, on
     if (room) {
       setName(room.name);
       setCapacity(room.capacity.toString());
+      setPrice(room.price.toString());
       setSelectedAmenities(new Set(room.amenities.map(a => a.name)));
       setImageUrl(room.imageUrl);
       setError('');
@@ -43,8 +45,9 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ isOpen, onClose, room, on
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsedCapacity = parseInt(capacity, 10);
-    if (!name.trim() || isNaN(parsedCapacity) || parsedCapacity <= 0) {
-      setError('Please provide a valid room name and a positive number for capacity.');
+    const parsedPrice = parseFloat(price);
+    if (!name.trim() || isNaN(parsedCapacity) || parsedCapacity <= 0 || isNaN(parsedPrice) || parsedPrice < 0) {
+      setError('Please provide a valid room name, a positive capacity, and a non-negative price.');
       return;
     }
     setError('');
@@ -55,6 +58,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ isOpen, onClose, room, on
       ...room,
       name: name.trim(),
       capacity: parsedCapacity,
+      price: parsedPrice,
       amenities: finalAmenities,
       imageUrl: imageUrl.trim() || `https://picsum.photos/seed/${name.trim().replace(/\s+/g, '-')}/600/400`,
     };
@@ -70,9 +74,15 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ isOpen, onClose, room, on
           <label htmlFor="edit-roomName" className="block text-sm font-medium text-gray-700">Room Name</label>
           <input type="text" id="edit-roomName" value={name} onChange={e => setName(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
         </div>
-        <div>
-          <label htmlFor="edit-capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
-          <input type="number" id="edit-capacity" value={capacity} onChange={e => setCapacity(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+        <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="edit-capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
+              <input type="number" id="edit-capacity" value={capacity} onChange={e => setCapacity(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            <div>
+              <label htmlFor="edit-price" className="block text-sm font-medium text-gray-700">Price (US$/day)</label>
+              <input type="number" id="edit-price" value={price} onChange={e => setPrice(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+            </div>
         </div>
         <div>
             <label className="block text-sm font-medium text-gray-700">Amenities</label>

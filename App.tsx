@@ -41,6 +41,12 @@ const App: React.FC = () => {
   const updateRoom = (updatedRoom: Room) => {
     setRooms(prev => prev.map(room => room.id === updatedRoom.id ? updatedRoom : room));
   };
+
+  const deleteRoom = (roomId: string) => {
+    setRooms(prev => prev.filter(room => room.id !== roomId));
+    // Also delete any bookings associated with the room
+    setBookings(prev => prev.filter(booking => booking.roomId !== roomId));
+  };
   
   const toggleRole = () => {
     setAdminRole(prev => !prev);
@@ -67,7 +73,7 @@ const App: React.FC = () => {
 
   const renderView = () => {
     if (adminRole) {
-       return <AdminPanelView rooms={rooms} bookings={bookings} cancelBooking={cancelBooking} onSuggestAmenities={handleSuggestAmenities} addRoom={addRoom} updateRoom={updateRoom} />;
+       return <AdminPanelView rooms={rooms} bookings={bookings} cancelBooking={cancelBooking} onSuggestAmenities={handleSuggestAmenities} addRoom={addRoom} updateRoom={updateRoom} deleteRoom={deleteRoom} />;
     }
 
     switch (currentView) {

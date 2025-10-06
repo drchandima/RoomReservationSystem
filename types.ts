@@ -2,6 +2,7 @@ export interface Room {
   id: string;
   name: string;
   capacity: number;
+  price: number;
   amenities: Amenity[];
   imageUrl: string;
 }
@@ -11,7 +12,7 @@ export interface Amenity {
   icon: IconType;
 }
 
-export type IconType = 'Users' | 'Wifi' | 'Tv' | 'Coffee' | 'Wind' | 'Presentation' | 'Mic' | 'Pool';
+export type IconType = 'Users' | 'Wifi' | 'Tv' | 'Coffee' | 'Wind' | 'Presentation' | 'Mic' | 'Pool' | 'DollarSign';
 
 export interface Booking {
   id: string;

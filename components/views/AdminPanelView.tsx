@@ -11,9 +11,10 @@ interface AdminPanelViewProps {
   onSuggestAmenities: (roomName: string) => Promise<string[]>;
   addRoom: (roomData: Omit<Room, 'id'>) => void;
   updateRoom: (roomData: Room) => void;
+  deleteRoom: (roomId: string) => void;
 }
 
-const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancelBooking, onSuggestAmenities, addRoom, updateRoom }) => {
+const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancelBooking, onSuggestAmenities, addRoom, updateRoom, deleteRoom }) => {
   const getRoomName = (roomId: string) => rooms.find(r => r.id === roomId)?.name || 'Unknown Room';
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +22,7 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
 
   const [newRoomName, setNewRoomName] = useState('');
   const [newRoomCapacity, setNewRoomCapacity] = useState('');
+  const [newRoomPrice, setNewRoomPrice] = useState('');
   const [newRoomAmenities, setNewRoomAmenities] = useState<Set<string>>(new Set());
   const [newRoomImageUrl, setNewRoomImageUrl] = useState('');
   const [formError, setFormError] = useState('');
@@ -52,9 +54,10 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
   const handleAddRoom = (e: React.FormEvent) => {
     e.preventDefault();
     const capacity = parseInt(newRoomCapacity, 10);
+    const price = parseFloat(newRoomPrice);
 
-    if (!newRoomName.trim() || isNaN(capacity) || capacity <= 0) {
-      setFormError('Please provide a valid room name and a positive number for capacity.');
+    if (!newRoomName.trim() || isNaN(capacity) || capacity <= 0 || isNaN(price) || price < 0) {
+      setFormError('Please provide a valid room name, a positive capacity, and a non-negative price.');
       return;
     }
     setFormError('');
@@ -64,6 +67,7 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
     addRoom({
       name: newRoomName,
       capacity,
+      price,
       amenities,
       imageUrl: newRoomImageUrl.trim() || `https://picsum.photos/seed/${newRoomName.replace(/\s+/g, '-')}/600/400`,
     });
@@ -71,6 +75,7 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
     // Reset form fields
     setNewRoomName('');
     setNewRoomCapacity('');
+    setNewRoomPrice('');
     setNewRoomAmenities(new Set());
     setNewRoomImageUrl('');
   };
@@ -90,7 +95,7 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
         {/* Add New Room Form */}
         <form onSubmit={handleAddRoom} className="mb-8 p-4 border rounded-lg bg-gray-50 space-y-4">
             <h3 className="text-xl font-semibold text-gray-700">Add New Room</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                     <label htmlFor="roomName" className="block text-sm font-medium text-gray-700">Room Name</label>
                     <input type="text" id="roomName" value={newRoomName} onChange={e => setNewRoomName(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., The Hive" />
@@ -99,7 +104,11 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
                     <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
                     <input type="number" id="capacity" value={newRoomCapacity} onChange={e => setNewRoomCapacity(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 8" />
                 </div>
-                 <div className="md:col-span-2">
+                <div>
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (US$/day)</label>
+                    <input type="number" id="price" value={newRoomPrice} onChange={e => setNewRoomPrice(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 150" />
+                </div>
+                 <div className="md:col-span-3">
                     <label className="block text-sm font-medium text-gray-700">Amenities</label>
                     <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                         {STANDARD_AMENITIES.map(amenity => (
@@ -119,7 +128,7 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
                         ))}
                     </div>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-3">
                     <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">Image URL (optional)</label>
                     <input type="text" id="imageUrl" value={newRoomImageUrl} onChange={e => setNewRoomImageUrl(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://example.com/image.jpg" />
                 </div>
@@ -136,7 +145,7 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
             <div key={room.id} className="border p-4 rounded-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <p className="font-semibold text-lg">{room.name}</p>
-                <p className="text-sm text-gray-500">Capacity: {room.capacity} | Amenities: {room.amenities.length}</p>
+                <p className="text-sm text-gray-500">Capacity: {room.capacity} | Price: ${room.price}/day | Amenities: {room.amenities.length}</p>
               </div>
               <div className="flex items-center space-x-2 flex-shrink-0">
                  <button
@@ -150,6 +159,16 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
                   className="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-600 transition-colors duration-200 text-sm"
                 >
                   Suggest Amenities
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Are you sure you want to delete "${room.name}"? This will also cancel all associated bookings. This action cannot be undone.`)) {
+                      deleteRoom(room.id);
+                    }
+                  }}
+                  className="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm"
+                >
+                  Delete
                 </button>
               </div>
             </div>
@@ -198,6 +217,7 @@ const AdminPanelView: React.FC<AdminPanelViewProps> = ({ rooms, bookings, cancel
                       <div className="text-sm text-gray-500">{booking.userEmail}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                        {/* FIX: Corrected typo from toLocaleDateDateString to toLocaleDateString */}
                         <div className="text-sm text-gray-900">{new Date(booking.date).toLocaleDateString()}</div>
                         <div className="text-sm text-gray-500">{booking.startTime} - {booking.endTime}</div>
                     </td>
