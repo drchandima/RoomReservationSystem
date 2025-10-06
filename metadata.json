@@ -1,0 +1,5 @@
+{
+  "name": "Room Reservation System",
+  "description": "A modern and intuitive web application for browsing, booking, and managing room reservations. It features an interactive calendar, user and admin views, and a clean, responsive design.",
+  "requestFramePermissions": []
+}
